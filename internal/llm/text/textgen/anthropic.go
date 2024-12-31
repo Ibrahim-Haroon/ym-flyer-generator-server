@@ -1,4 +1,4 @@
-package provider
+package textgen
 
 import (
 	"bytes"
@@ -9,39 +9,34 @@ import (
 	"os"
 )
 
-type OpenAITextProvider struct {
+type AnthropicTextProvider struct {
 	model  string
 	url    string
 	apiKey string
 }
 
-func NewOpenAITextProvider() (*OpenAITextProvider, error) {
-	return &OpenAITextProvider{
-		model:  "gpt-4o-mini",
-		url:    "https://api.openai.com/v1/chat/completionss",
-		apiKey: os.Getenv("OPENAI_API_KEY"),
+func NewAnthropicTextProvider() (*AnthropicTextProvider, error) {
+	return &AnthropicTextProvider{
+		model:  "claude-3-sonnet-20240229",
+		url:    "https://api.anthropic.com/v1/messages",
+		apiKey: os.Getenv("ANTHROPIC_API_KEY"),
 	}, nil
 }
 
-func (p *OpenAITextProvider) GetModel() string {
+func (p *AnthropicTextProvider) GetModel() string {
 	return p.model
 }
 
-func (p *OpenAITextProvider) GetURL() string {
+func (p *AnthropicTextProvider) GetURL() string {
 	return p.url
 }
 
-func (p *OpenAITextProvider) GenerateImageDescription(
+func (p *AnthropicTextProvider) GenerateImageDescription(
 	role string,
 	prompt string,
 	conversationHistory []models.TextHistory,
 ) (string, error) {
-	messages := []map[string]string{
-		{
-			"role":    "system",
-			"content": role,
-		},
-	}
+	var messages []map[string]string
 
 	if conversationHistory != nil {
 		for _, msg := range conversationHistory {
@@ -58,8 +53,10 @@ func (p *OpenAITextProvider) GenerateImageDescription(
 	})
 
 	payload := map[string]any{
-		"model":    p.model,
-		"messages": messages,
+		"model":      p.model,
+		"system":     role,
+		"messages":   messages,
+		"max_tokens": 1_000,
 	}
 
 	jsonData, err := json.Marshal(payload)
@@ -73,7 +70,8 @@ func (p *OpenAITextProvider) GenerateImageDescription(
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+p.apiKey)
+	req.Header.Set("anthropic-version", "2023-06-01")
+	req.Header.Set("x-api-key", p.apiKey)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -82,14 +80,14 @@ func (p *OpenAITextProvider) GenerateImageDescription(
 	}
 	defer resp.Body.Close()
 
-	var llmResponse models.OpenAIResponse
+	var llmResponse models.AnthropicResponse
 	if err := json.NewDecoder(resp.Body).Decode(&llmResponse); err != nil {
 		return "", fmt.Errorf("error decoding response: %w", err)
 	}
 
-	if len(llmResponse.Choices) == 0 || llmResponse.Choices[0].Message.Content == "" {
+	if len(llmResponse.Content) == 0 {
 		return "", fmt.Errorf("no content found in the response")
 	}
 
-	return llmResponse.Choices[0].Message.Content, nil
+	return llmResponse.Content[0].Text, nil
 }

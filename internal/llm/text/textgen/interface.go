@@ -1,8 +1,8 @@
-package provider
+package textgen
 
 import "github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/models"
 
-type TextProvider interface {
+type Provider interface {
 	GetModel() string
 
 	GetURL() string
