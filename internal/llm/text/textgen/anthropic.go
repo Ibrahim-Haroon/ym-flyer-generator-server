@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/models"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/model"
 	"net/http"
 	"os"
 )
@@ -34,7 +34,7 @@ func (p *AnthropicTextProvider) GetURL() string {
 func (p *AnthropicTextProvider) GenerateImageDescription(
 	role string,
 	prompt string,
-	conversationHistory []models.TextHistory,
+	conversationHistory []model.TextHistory,
 ) (string, error) {
 	var messages []map[string]string
 
@@ -80,7 +80,7 @@ func (p *AnthropicTextProvider) GenerateImageDescription(
 	}
 	defer resp.Body.Close()
 
-	var llmResponse models.AnthropicResponse
+	var llmResponse model.AnthropicResponse
 	if err := json.NewDecoder(resp.Body).Decode(&llmResponse); err != nil {
 		return "", fmt.Errorf("error decoding response: %w", err)
 	}

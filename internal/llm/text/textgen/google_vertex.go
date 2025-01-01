@@ -2,7 +2,7 @@ package textgen
 
 import (
 	"fmt"
-	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/models"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/model"
 )
 
 type GoogleVertexTextProvider struct {
@@ -25,7 +25,7 @@ func (p *GoogleVertexTextProvider) GetURL() string {
 func (p *GoogleVertexTextProvider) GenerateImageDescription(
 	role string,
 	prompt string,
-	conversationHistory []models.TextHistory,
+	conversationHistory []model.TextHistory,
 ) (string, error) {
 	return "", nil
 }

@@ -1,4 +1,4 @@
-package models
+package model
 
 // DTO for openai image endpoint
 type OpenAIResponse struct {

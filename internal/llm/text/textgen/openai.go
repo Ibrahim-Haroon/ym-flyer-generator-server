@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/models"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/model"
 	"net/http"
 	"os"
 )
@@ -34,7 +34,7 @@ func (p *OpenAITextProvider) GetURL() string {
 func (p *OpenAITextProvider) GenerateImageDescription(
 	role string,
 	prompt string,
-	conversationHistory []models.TextHistory,
+	conversationHistory []model.TextHistory,
 ) (string, error) {
 	messages := []map[string]string{
 		{
@@ -82,7 +82,7 @@ func (p *OpenAITextProvider) GenerateImageDescription(
 	}
 	defer resp.Body.Close()
 
-	var llmResponse models.OpenAIResponse
+	var llmResponse model.OpenAIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&llmResponse); err != nil {
 		return "", fmt.Errorf("error decoding response: %w", err)
 	}

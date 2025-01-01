@@ -1,6 +1,6 @@
 package textgen
 
-import "github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/models"
+import "github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/model"
 
 type Provider interface {
 	GetModel() string
@@ -10,6 +10,6 @@ type Provider interface {
 	GenerateImageDescription(
 		role string,
 		prompt string,
-		conversationHistory []models.TextHistory,
+		conversationHistory []model.TextHistory,
 	) (string, error)
 }

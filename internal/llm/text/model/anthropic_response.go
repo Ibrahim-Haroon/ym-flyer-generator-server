@@ -1,4 +1,4 @@
-package models
+package model
 
 // DTO for anthropic text endpoint
 type AnthropicResponse struct {

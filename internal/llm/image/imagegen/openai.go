@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/image/models"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/image/model"
 	"image"
 	"image/png"
 	"net/http"
@@ -63,7 +63,7 @@ func (p *OpenAIImageProvider) GenerateImage(imageDescription string) ([]string, 
 	}
 	defer resp.Body.Close()
 
-	var llmResponse models.OpenAIResponse
+	var llmResponse model.OpenAIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&llmResponse); err != nil {
 		return nil, fmt.Errorf("error decoding response: %w", err)
 	}
@@ -75,7 +75,7 @@ func (p *OpenAIImageProvider) GenerateImage(imageDescription string) ([]string, 
 	return p.saveImages(llmResponse)
 }
 
-func (p *OpenAIImageProvider) saveImages(llmResponse models.OpenAIResponse) ([]string, error) {
+func (p *OpenAIImageProvider) saveImages(llmResponse model.OpenAIResponse) ([]string, error) {
 	var savedPaths []string
 	path := filepath.Join("images", fmt.Sprintf("%d", llmResponse.Created))
 	err := os.MkdirAll(path, os.ModePerm)
