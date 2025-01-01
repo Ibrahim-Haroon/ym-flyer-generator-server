@@ -7,5 +7,5 @@ type OpenAIResponse struct {
 }
 
 type Data struct {
-	B64_json string `json:"b64_json"`
+	B64JSON string `json:"b64_json"`
 }

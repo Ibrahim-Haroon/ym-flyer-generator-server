@@ -84,7 +84,7 @@ func (p *OpenAIImageProvider) saveImages(llmResponse models.OpenAIResponse) ([]s
 	}
 
 	for i, data := range llmResponse.Data {
-		imageBytes, err := base64.StdEncoding.DecodeString(data.B64_json)
+		imageBytes, err := base64.StdEncoding.DecodeString(data.B64JSON)
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode base64 string for image %d: %w", i, err)
 		}
