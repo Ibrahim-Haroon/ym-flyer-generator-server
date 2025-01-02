@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/flyer/model"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -13,9 +12,6 @@ import (
 func GetBackground(c *gin.Context) {
 	imagePath := c.Param("path")
 	fullPath := filepath.Join(".", imagePath)
-
-	log.Printf("Requested path: %s", imagePath)
-	log.Printf("Full path: %s", fullPath)
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Image not found"})
