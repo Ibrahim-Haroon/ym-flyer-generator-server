@@ -8,10 +8,10 @@ const (
 	OpenAI ProviderType = "openai"
 )
 
-func NewProvider(providerType ProviderType) (Provider, error) {
+func NewProvider(providerType ProviderType, apiKey string) (Provider, error) {
 	switch providerType {
 	case OpenAI:
-		return NewOpenAIImageProvider()
+		return NewOpenAIImageProvider(apiKey)
 	default:
 		return nil, fmt.Errorf("unsupported image provider: %s", providerType)
 	}

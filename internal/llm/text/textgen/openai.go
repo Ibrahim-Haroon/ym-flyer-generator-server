@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/model"
 	"net/http"
-	"os"
 )
 
 type OpenAITextProvider struct {
@@ -15,11 +14,11 @@ type OpenAITextProvider struct {
 	apiKey string
 }
 
-func NewOpenAITextProvider() (*OpenAITextProvider, error) {
+func NewOpenAITextProvider(apiKey string) (*OpenAITextProvider, error) {
 	return &OpenAITextProvider{
 		model:  "gpt-4o-mini",
 		url:    "https://api.openai.com/v1/chat/completions",
-		apiKey: os.Getenv("OPENAI_API_KEY"),
+		apiKey: apiKey,
 	}, nil
 }
 
@@ -88,7 +87,7 @@ func (p *OpenAITextProvider) GenerateImageDescription(
 	}
 
 	if len(llmResponse.Choices) == 0 || llmResponse.Choices[0].Message.Content == "" {
-		return "", fmt.Errorf("no content found in the response")
+		return "", fmt.Errorf("no content found in the response. %w\n", err)
 	}
 
 	return llmResponse.Choices[0].Message.Content, nil

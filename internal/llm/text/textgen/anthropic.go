@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/model"
 	"net/http"
-	"os"
 )
 
 type AnthropicTextProvider struct {
@@ -15,11 +14,11 @@ type AnthropicTextProvider struct {
 	apiKey string
 }
 
-func NewAnthropicTextProvider() (*AnthropicTextProvider, error) {
+func NewAnthropicTextProvider(apiKey string) (*AnthropicTextProvider, error) {
 	return &AnthropicTextProvider{
 		model:  "claude-3-sonnet-20240229",
 		url:    "https://api.anthropic.com/v1/messages",
-		apiKey: os.Getenv("ANTHROPIC_API_KEY"),
+		apiKey: apiKey,
 	}, nil
 }
 
@@ -86,7 +85,7 @@ func (p *AnthropicTextProvider) GenerateImageDescription(
 	}
 
 	if len(llmResponse.Content) == 0 {
-		return "", fmt.Errorf("no content found in the response")
+		return "", fmt.Errorf("no content found in the response. %w\n", err)
 	}
 
 	return llmResponse.Content[0].Text, nil

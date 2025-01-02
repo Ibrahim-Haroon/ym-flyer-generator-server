@@ -19,11 +19,11 @@ type OpenAIImageProvider struct {
 	apiKey string
 }
 
-func NewOpenAIImageProvider() (*OpenAIImageProvider, error) {
+func NewOpenAIImageProvider(apiKey string) (*OpenAIImageProvider, error) {
 	return &OpenAIImageProvider{
 		model:  "dall-e-3",
 		url:    "https://api.openai.com/v1/images/generations",
-		apiKey: os.Getenv("OPENAI_API_KEY"),
+		apiKey: apiKey,
 	}, nil
 }
 
@@ -69,7 +69,7 @@ func (p *OpenAIImageProvider) GenerateImage(imageDescription string) ([]string, 
 	}
 
 	if len(llmResponse.Data) == 0 {
-		return nil, fmt.Errorf("no content found in the response")
+		return nil, fmt.Errorf("no content found in the response. %w\n", err)
 	}
 
 	return p.saveImages(llmResponse)

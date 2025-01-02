@@ -10,7 +10,7 @@ type GoogleVertexTextProvider struct {
 	// model, url, project id, location, response type
 }
 
-func NewGoogleVertexTextProvider() (*GoogleVertexTextProvider, error) {
+func NewGoogleVertexTextProvider(apiKey string) (*GoogleVertexTextProvider, error) {
 	return nil, fmt.Errorf("Google Gemini support coming soon!")
 }
 

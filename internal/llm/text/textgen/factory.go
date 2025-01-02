@@ -10,15 +10,15 @@ const (
 	GoogleVertex ProviderType = "google-vertex"
 )
 
-func NewProvider(providerType ProviderType) (Provider, error) {
+func NewProvider(providerType ProviderType, apiKey string) (Provider, error) {
 	switch providerType {
 	case OpenAI:
-		return NewOpenAITextProvider()
+		return NewOpenAITextProvider(apiKey)
 	case Anthropic:
-		return NewAnthropicTextProvider()
+		return NewAnthropicTextProvider(apiKey)
 	case GoogleVertex:
-		return NewGoogleVertexTextProvider()
+		return NewGoogleVertexTextProvider(apiKey)
 	default:
-		return nil, fmt.Errorf("unsupported text provider: %s", providerType)
+		return nil, fmt.Errorf("unsupported text provider: %s\n", providerType)
 	}
 }
