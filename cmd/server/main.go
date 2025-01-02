@@ -16,7 +16,7 @@ func HealthCheck(c *gin.Context) {
 func main() {
 	err := godotenv.Load("local-config.env")
 	if err != nil {
-		log.Fatal("Error loading in enviornment file!")
+		log.Println("Error loading in enviornment file! OK if running on AWS ECS")
 	}
 
 	router := gin.Default()
