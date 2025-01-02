@@ -2,7 +2,7 @@ FROM golang:1.23.4
 
 ENV TZ=America/New_York
 
-WORKDIR /server
+WORKDIR /app
 
 COPY go.mod go.sum ./
 
@@ -11,10 +11,8 @@ RUN go mod tidy
 
 COPY . .
 
-RUN ls -la
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o /ym-docker-server cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/flyer-server cmd/server/main.go
 
 EXPOSE 8080
 
-CMD ["/ym-docker-server"]
+CMD ["/app/flyer-server"]
