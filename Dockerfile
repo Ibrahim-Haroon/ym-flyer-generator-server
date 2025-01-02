@@ -9,8 +9,6 @@ COPY go.mod go.sum ./
 RUN go mod download
 RUN go mod tidy
 
-# Copying because docker-compose needs it but in ECS we can use environment variables
-COPY local-config.env.example /server/local-config.env
 COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/flyer-server cmd/server/main.go
