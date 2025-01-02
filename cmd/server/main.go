@@ -6,6 +6,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+	"os"
 )
 
 func HealthCheck(c *gin.Context) {
@@ -19,8 +20,13 @@ func main() {
 	}
 
 	router := gin.Default()
-	router.GET("api/v1/health", HealthCheck)
-	router.POST("api/v1/flyer", flyer.GetBackground)
+	router.GET("/api/v1/health", HealthCheck)
+	router.GET("/api/v1/flyer/*path", flyer.GetBackground)
+	router.POST("/api/v1/flyer", flyer.GenerateBackgrounds)
 
-	router.Run("localhost:8080")
+	if os.Getenv("CONTAINER") == "TRUE" {
+		router.Run(":8080")
+	} else {
+		router.Run("localhost:8080")
+	}
 }
