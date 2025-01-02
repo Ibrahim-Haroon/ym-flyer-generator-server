@@ -1,7 +1,7 @@
 services:
-  ym-flyer-gen-server:
-    image: ym-flyer-gen-server:latest
-    container_name: ym-flyer-gen-server
+  flyer-server:
+    image: ym-flyer-server:latest
+    container_name: ym-flyer-server
     build: .
     ports:
       - "8080:8080"
