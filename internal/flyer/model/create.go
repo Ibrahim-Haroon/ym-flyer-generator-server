@@ -23,5 +23,5 @@ type ImageModelProviderMeta struct {
 }
 
 type CreateResponse struct {
-	Backgrounds []Background `json:"flyers"`
+	BackgroundPaths []string `json:"backgroud_paths"`
 }
