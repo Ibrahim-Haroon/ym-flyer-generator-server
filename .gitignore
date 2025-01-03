@@ -27,3 +27,4 @@ local-config.env
 # other
 *.DS_Store*
 images
+.aws-task-definitions.json
