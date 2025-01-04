@@ -62,7 +62,16 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
+	user, err := h.service.GetUserByUsername(req.Username)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "User not found",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, model.LoginResponse{
+		ID:    user.ID,
 		Token: token,
 	})
 }
@@ -82,7 +91,7 @@ func (h *Handler) GetUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.GetUser(userID)
+	user, err := h.service.GetUserById(userID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": "User not found",
