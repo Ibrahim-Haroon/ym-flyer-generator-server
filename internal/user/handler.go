@@ -18,10 +18,19 @@ func NewHandler(service *Service) *Handler {
 	}
 }
 
+// @Summary Register new user
+// @Description Register a new user with username, password and email
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body model.RegisterRequest true "User registration details"
+// @Success 201 {object} model.RegisterResponse "Successfully registered"
+// @Failure 400 {object} model.UserErrorResponse "Invalid request body or username taken"
+// @Router /api/v1/users/register [post]
 func (h *Handler) Register(c *gin.Context) {
 	var req model.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		c.JSON(http.StatusBadRequest, model.UserErrorResponse{Error: "Invalid request body"})
 		return
 	}
 
@@ -33,7 +42,7 @@ func (h *Handler) Register(c *gin.Context) {
 
 	token, err := h.service.Register(user)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, model.UserErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -47,24 +56,32 @@ func (h *Handler) Register(c *gin.Context) {
 	})
 }
 
+// @Summary Login user
+// @Description Authenticate user and return JWT token
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body model.LoginRequest true "Login credentials"
+// @Success 200 {object} model.LoginResponse "Successfully logged in"
+// @Failure 400 {object} model.UserErrorResponse "Invalid request body"
+// @Failure 401 {object} model.UserErrorResponse "Invalid credentials"
+// @Router /api/v1/users/login [post]
 func (h *Handler) Login(c *gin.Context) {
 	var req model.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		c.JSON(http.StatusBadRequest, model.UserErrorResponse{Error: "Invalid request body"})
 		return
 	}
 
 	token, err := h.service.Login(req.Username, req.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, model.UserErrorResponse{Error: "Invalid credentials"})
 		return
 	}
 
 	user, err := h.service.GetUserByUsername(req.Username)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "User not found",
-		})
+		c.JSON(http.StatusNotFound, model.UserErrorResponse{Error: "User not found"})
 		return
 	}
 
@@ -74,26 +91,36 @@ func (h *Handler) Login(c *gin.Context) {
 	})
 }
 
+// @Summary Get user details
+// @Description Get detailed information about a user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Security BearerAuth
+// @Success 200 {object} model.UserResponse "User details"
+// @Failure 401 {object} model.UserErrorResponse "Unauthorized access"
+// @Failure 403 {object} model.UserErrorResponse "Forbidden"
+// @Failure 404 {object} model.UserErrorResponse "User not found"
+// @Router /api/v1/users/{id} [get]
 func (h *Handler) GetUser(c *gin.Context) {
 	userID := c.Param("id")
 
 	userIDFromClaim, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No authentication claims found"})
+		c.JSON(http.StatusUnauthorized, model.UserErrorResponse{Error: "No authentication claims found"})
 		return
 	}
 
 	isAdmin, _ := c.Get("isAdmin")
 	if userIDFromClaim.(string) != userID && !isAdmin.(bool) {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized access"})
+		c.JSON(http.StatusForbidden, model.UserErrorResponse{Error: "Unauthorized access"})
 		return
 	}
 
 	user, err := h.service.GetUserById(userID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "User not found",
-		})
+		c.JSON(http.StatusNotFound, model.UserErrorResponse{Error: "User not found"})
 		return
 	}
 
@@ -102,25 +129,37 @@ func (h *Handler) GetUser(c *gin.Context) {
 		Username:     user.Username,
 		Email:        user.Email,
 		CreatedAt:    user.CreatedAt,
-		UpdatedAt:    user.UpdateAt,
+		UpdatedAt:    user.UpdatedAt,
 		LastLogin:    user.LastLogin,
 		ActiveStatus: user.ActiveStatus,
 		IsAdmin:      user.IsAdmin,
 	})
 }
 
+// @Summary Add/update API keys (idempotent)
+// @Description Update user's API keys for text and image generation services
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param request body model.UpdateAPIKeysRequest true "API keys"
+// @Security BearerAuth
+// @Success 200 {object} model.UpdateUserResponse "API keys updated"
+// @Failure 400 {object} model.UserErrorResponse "Invalid request body"
+// @Failure 401 {object} model.UserErrorResponse "Unauthorized access"
+// @Router /api/v1/users/{id}/api-keys [put]
 func (h *Handler) UpdateAPIKeys(c *gin.Context) {
 	userID := c.Param("id")
 
 	userIDFromClaim, exists := c.Get("userID")
 	if !exists || userIDFromClaim.(string) != userID {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized access"})
+		c.JSON(http.StatusUnauthorized, model.UserErrorResponse{Error: "Unauthorized access"})
 		return
 	}
 
 	var req model.UpdateAPIKeysRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		c.JSON(http.StatusBadRequest, model.UserErrorResponse{Error: "Invalid request body"})
 		return
 	}
 
@@ -132,7 +171,7 @@ func (h *Handler) UpdateAPIKeys(c *gin.Context) {
 	}
 
 	if err := h.service.UpdateAPIKeys(userID, keys); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, model.UserErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -141,23 +180,35 @@ func (h *Handler) UpdateAPIKeys(c *gin.Context) {
 	})
 }
 
+// @Summary Delete user
+// @Description Delete a user account
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Security BearerAuth
+// @Success 200 {object} model.UpdateUserResponse "User deleted"
+// @Failure 401 {object} model.UserErrorResponse "Unauthorized access"
+// @Failure 403 {object} model.UserErrorResponse "Forbidden"
+// @Failure 404 {object} model.UserErrorResponse "User not found"
+// @Router /api/v1/users/{id} [delete]
 func (h *Handler) DeleteUser(c *gin.Context) {
 	userID := c.Param("id")
 
 	userIDFromClaim, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No authentication claims found"})
+		c.JSON(http.StatusUnauthorized, model.UserErrorResponse{Error: "No authentication claims found"})
 		return
 	}
 
 	isAdmin, _ := c.Get("isAdmin")
 	if userIDFromClaim.(string) != userID && !isAdmin.(bool) {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized access"})
+		c.JSON(http.StatusForbidden, model.UserErrorResponse{Error: "Unauthorized access"})
 		return
 	}
 
 	if err := h.service.DeleteUser(userID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, model.UserErrorResponse{Error: err.Error()})
 		return
 	}
 

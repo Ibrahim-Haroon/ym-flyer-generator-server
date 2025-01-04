@@ -82,7 +82,7 @@ func (r *Repository) CreateUser(user *model.User) error {
 	}
 
 	user.CreatedAt = now.Format(time.RFC3339)
-	user.UpdateAt = now.Format(time.RFC3339)
+	user.UpdatedAt = now.Format(time.RFC3339)
 	user.LastLogin = now.Format(time.RFC3339)
 
 	return nil
@@ -131,7 +131,7 @@ func (r *Repository) scanUser(row *sql.Row) (*model.User, error) {
 	}
 
 	user.CreatedAt = createdAt.Format(time.RFC3339)
-	user.UpdateAt = updatedAt.Format(time.RFC3339)
+	user.UpdatedAt = updatedAt.Format(time.RFC3339)
 	user.LastLogin = lastLogin.Format(time.RFC3339)
 
 	if err := json.Unmarshal(textModelKeysJSON, &user.TextModelApiKeys); err != nil {
@@ -237,7 +237,7 @@ func (r *Repository) UpdateUser(user *model.User) error {
 		return fmt.Errorf("error committing transaction: %w", err)
 	}
 
-	user.UpdateAt = now.Format(time.RFC3339)
+	user.UpdatedAt = now.Format(time.RFC3339)
 	return nil
 }
 
