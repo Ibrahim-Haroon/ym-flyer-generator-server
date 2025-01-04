@@ -2,9 +2,10 @@ package jwt
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/user/model"
 	"github.com/golang-jwt/jwt/v5"
-	"time"
 )
 
 type Claims struct {

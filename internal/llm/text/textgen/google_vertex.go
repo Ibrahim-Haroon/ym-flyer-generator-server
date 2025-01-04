@@ -2,6 +2,7 @@ package textgen
 
 import (
 	"fmt"
+
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/model"
 )
 
