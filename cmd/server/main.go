@@ -1,32 +1,93 @@
 package main
 
 import (
-	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/flyer"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	"context"
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/flyer"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/service"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/user"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
+func setupRouter(serviceModule *module.Module) *gin.Engine {
+	router := gin.Default()
+
+	userHandler := user.NewHandler(serviceModule.UserService)
+	flyerHandler := flyer.NewHandler(serviceModule.FlyerService)
+
+	api := router.Group("/api/v1")
+	{
+		// Public endpoints (no auth required)
+		api.GET("/health", HealthCheck)
+		api.POST("/users/register", userHandler.Register)
+		api.POST("/users/login", userHandler.Login)
+
+		users := api.Group("/users")
+		users.Use(serviceModule.Middleware.AuthUser)
+		{
+			users.GET("/:id", userHandler.GetUser)
+			users.PUT("/:id/api-keys", userHandler.UpdateAPIKeys)
+			users.DELETE("/:id", userHandler.DeleteUser)
+		}
+
+		flyers := api.Group("/flyer")
+		flyers.Use(serviceModule.Middleware.AuthUser)
+		{
+			flyers.POST("/:id", flyerHandler.GenerateBackgrounds)
+			flyers.GET("/:id/*path", flyerHandler.GetBackground)
+		}
+
+		admin := api.Group("/admin")
+		admin.Use(serviceModule.Middleware.AuthAdmin)
+		{
+			// admin routes
+		}
+	}
+
+	return router
+}
+
 func HealthCheck(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, "healthy")
+	c.JSON(http.StatusOK, gin.H{
+		"status": "healthy",
+	})
 }
 
 func main() {
-	err := godotenv.Load("local-config.env")
-	if err != nil {
-		log.Println("Error loading in enviornment file! OK if running on AWS ECS")
+	if err := godotenv.Load("local-config.env"); err != nil {
+		log.Println("Error loading environment file! OK if running on AWS ECS")
 	}
 
-	router := gin.Default()
-	router.GET("/api/v1/health", HealthCheck)
-	router.GET("/api/v1/flyer/*path", flyer.GetBackground)
-	router.POST("/api/v1/flyer", flyer.GenerateBackgrounds)
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+	defer db.Close()
 
-	if os.Getenv("CONTAINER") == "TRUE" {
-		router.Run(":8080")
+	ctx := context.Background()
+	serviceModule, err := module.NewModule(ctx, db)
+	if err != nil {
+		log.Fatal("Failed to initialize service module:", err)
+	}
+	defer serviceModule.Cleanup(ctx)
+
+	router := setupRouter(serviceModule)
+
+	port := ":8080"
+	if os.Getenv("CONTAINER") != "TRUE" {
+		log.Println("Application running inside container...")
+		port = "localhost:8080"
 	} else {
-		router.Run("localhost:8080")
+		log.Println("Application running locally...")
+	}
+
+	if err := router.Run(port); err != nil {
+		log.Fatal("Failed to start server:", err)
 	}
 }
