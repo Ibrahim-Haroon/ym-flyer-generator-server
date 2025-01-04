@@ -20,26 +20,39 @@ func NewHandler(service *Service) *Handler {
 	}
 }
 
+// @Summary Get a generated flyer background
+// @Description Retrieves a previously generated flyer background image by file path
+// @Tags flyer
+// @Accept json
+// @Produce image/png
+// @Param id path string true "User ID"
+// @Param path path string true "Image path"
+// @Security BearerAuth
+// @Success 200 {file} binary "Image data"
+// @Failure 401 {object} model.GenerationErrorResponse "Unauthorized access"
+// @Failure 404 {object} model.GenerationErrorResponse "Image not found"
+// @Failure 500 {object} model.GenerationErrorResponse "Server error"
+// @Router /api/v1/flyer/{id}/{path} [get]
 func (h *Handler) GetBackground(c *gin.Context) {
 	userID := c.Param("id")
 	imagePath := c.Param("path")
 
 	userIDFromClaim, exists := c.Get("userID")
 	if !exists || userIDFromClaim.(string) != userID {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized access"})
+		c.JSON(http.StatusUnauthorized, model.GenerationErrorResponse{Error: "Unauthorized access"})
 		return
 	}
 
 	fullPath := filepath.Join(".", imagePath)
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Image not found"})
+		c.JSON(http.StatusNotFound, model.GenerationErrorResponse{Error: "Image not found"})
 		return
 	}
 
 	imageData, err := os.ReadFile(fullPath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to read image: %v", err)})
+		c.JSON(http.StatusInternalServerError, model.GenerationErrorResponse{Error: fmt.Sprintf("Failed to read image: %v", err)})
 		return
 	}
 
@@ -47,22 +60,35 @@ func (h *Handler) GetBackground(c *gin.Context) {
 	c.Data(http.StatusOK, "image/png", imageData)
 }
 
+// @Summary Generate new flyer backgrounds
+// @Description Generates new flyer background images using AI with specified color palette
+// @Tags flyer
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param request body model.CreateRequest true "Generation parameters"
+// @Security BearerAuth
+// @Success 202 {object} model.CreateResponse "Successfully queued generation"
+// @Failure 400 {object} model.GenerationErrorResponse "Invalid request parameters"
+// @Failure 401 {object} model.GenerationErrorResponse "Unauthorized access"
+// @Failure 500 {object} model.GenerationErrorResponse "Server error"
+// @Router /api/v1/flyer/{id} [post]
 func (h *Handler) GenerateBackgrounds(c *gin.Context) {
 	userID := c.Param("id")
 	var createRequest model.CreateRequest
 
 	userIDFromClaim, exists := c.Get("userID")
 	if !exists || userIDFromClaim.(string) != userID {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized access"})
+		c.JSON(http.StatusUnauthorized, model.GenerationErrorResponse{Error: "Unauthorized access"})
 		return
 	}
 	userID, ok := userIDFromClaim.(string)
 	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Type assertion on userIDFromClaim failed!"})
+		c.JSON(http.StatusBadRequest, model.GenerationErrorResponse{Error: "Type assertion on userIDFromClaim failed!"})
 	}
 
 	if err := c.BindJSON(&createRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Failed to bind request: %v", err)})
+		c.JSON(http.StatusBadRequest, model.GenerationErrorResponse{Error: fmt.Sprintf("Failed to bind request: %v", err)})
 		return
 	}
 
@@ -73,7 +99,7 @@ func (h *Handler) GenerateBackgrounds(c *gin.Context) {
 		createRequest.ImageModelProvider,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, model.GenerationErrorResponse{Error: err.Error()})
 		return
 	}
 
