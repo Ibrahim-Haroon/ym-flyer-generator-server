@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/auth/jwt"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/flyer/model"
 	"github.com/gin-gonic/gin"
 )
@@ -22,11 +21,12 @@ func NewHandler(service *Service) *Handler {
 }
 
 func (h *Handler) GetBackground(c *gin.Context) {
+	userID := c.Param("id")
 	imagePath := c.Param("path")
 
-	_, exists := c.Get("claims")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No authentication claims found"})
+	userIDFromClaim, exists := c.Get("userID")
+	if !exists || userIDFromClaim.(string) != userID {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized access"})
 		return
 	}
 
@@ -48,14 +48,18 @@ func (h *Handler) GetBackground(c *gin.Context) {
 }
 
 func (h *Handler) GenerateBackgrounds(c *gin.Context) {
+	userID := c.Param("id")
 	var createRequest model.CreateRequest
 
-	claims, exists := c.Get("claims")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No authentication claims found"})
+	userIDFromClaim, exists := c.Get("userID")
+	if !exists || userIDFromClaim.(string) != userID {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized access"})
 		return
 	}
-	userClaims := claims.(*jwt.Claims)
+	userID, ok := userIDFromClaim.(string)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Type assertion on userIDFromClaim failed!"})
+	}
 
 	if err := c.BindJSON(&createRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Failed to bind request: %v", err)})
@@ -63,7 +67,7 @@ func (h *Handler) GenerateBackgrounds(c *gin.Context) {
 	}
 
 	backgroundPaths, err := h.service.CreateBackground(
-		userClaims.UserID,
+		userID,
 		createRequest.ColorPalette,
 		createRequest.TextModelProvider,
 		createRequest.ImageModelProvider,

@@ -70,13 +70,14 @@ func (h *Handler) Login(c *gin.Context) {
 func (h *Handler) GetUser(c *gin.Context) {
 	userID := c.Param("id")
 
-	claims, exists := c.Get("claims")
+	userIDFromClaim, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "No authentication claims found"})
 		return
 	}
 
-	if claims.(map[string]any)["user_id"] != userID && !claims.(map[string]any)["is_admin"].(bool) {
+	isAdmin, _ := c.Get("isAdmin")
+	if userIDFromClaim.(string) != userID && !isAdmin.(bool) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized access"})
 		return
 	}
@@ -104,8 +105,8 @@ func (h *Handler) GetUser(c *gin.Context) {
 func (h *Handler) UpdateAPIKeys(c *gin.Context) {
 	userID := c.Param("id")
 
-	claims, exists := c.Get("claims")
-	if !exists || claims.(map[string]any)["user_id"] != userID {
+	userIDFromClaim, exists := c.Get("userID")
+	if !exists || userIDFromClaim.(string) != userID {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized access"})
 		return
 	}
@@ -136,13 +137,14 @@ func (h *Handler) UpdateAPIKeys(c *gin.Context) {
 func (h *Handler) DeleteUser(c *gin.Context) {
 	userID := c.Param("id")
 
-	claims, exists := c.Get("claims")
+	userIDFromClaim, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "No authentication claims found"})
 		return
 	}
 
-	if claims.(map[string]any)["user_id"] != userID && !claims.(map[string]any)["is_admin"].(bool) {
+	isAdmin, _ := c.Get("isAdmin")
+	if userIDFromClaim.(string) != userID && !isAdmin.(bool) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized access"})
 		return
 	}
