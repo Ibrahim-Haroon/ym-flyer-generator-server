@@ -1,6 +1,9 @@
 package textgen
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type ProviderType string
 
@@ -9,6 +12,23 @@ const (
 	Anthropic    ProviderType = "anthropic"
 	GoogleVertex ProviderType = "google-vertex"
 )
+
+var validProviderTypes = map[ProviderType]bool{
+	OpenAI:       true,
+	Anthropic:    true,
+	GoogleVertex: true,
+}
+
+func NewProviderType(value string) (ProviderType, error) {
+	pt := ProviderType(value)
+	if !validProviderTypes[pt] {
+		return "", errors.New(fmt.Sprintf("%s is not a supported text model", value))
+	}
+	if pt == "google-vertex" {
+		return "", errors.New("support for google gemini coming soon...")
+	}
+	return pt, nil
+}
 
 func NewProvider(providerType ProviderType, apiKey string) (Provider, error) {
 	switch providerType {

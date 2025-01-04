@@ -21,9 +21,16 @@ var (
 )
 
 type APIKeys struct {
-	TextProvider  textgen.ProviderType
+	TextProvider  string // type checked in internal/user/service.go to textgen.ProviderType
 	TextAPIKey    string
-	ImageProvider imagegen.ProviderType
+	ImageProvider string // type checked in internal/user/service.go to imagegen.ProviderType
+	ImageAPIKey   string
+}
+
+type DecryptAPIKeys struct {
+	TextProvider  textgen.ProviderType // type checked in internal/user/service.go to textgen.ProviderType
+	TextAPIKey    string
+	ImageProvider imagegen.ProviderType // type checked in internal/user/service.go to imagegen.ProviderType
 	ImageAPIKey   string
 }
 

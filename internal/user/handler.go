@@ -4,8 +4,6 @@ import (
 	"net/http"
 
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/encryption"
-	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/image/imagegen"
-	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/textgen"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/user/model"
 	"github.com/gin-gonic/gin"
 )
@@ -127,9 +125,9 @@ func (h *Handler) UpdateAPIKeys(c *gin.Context) {
 	}
 
 	keys := &encryption.APIKeys{
-		TextProvider:  textgen.ProviderType(req.TextProvider),
+		TextProvider:  req.TextProvider,
 		TextAPIKey:    req.TextAPIKey,
-		ImageProvider: imagegen.ProviderType(req.ImageProvider),
+		ImageProvider: req.ImageProvider,
 		ImageAPIKey:   req.ImageAPIKey,
 	}
 
