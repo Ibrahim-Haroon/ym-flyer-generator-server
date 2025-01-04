@@ -7,12 +7,15 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/docs/swagger"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/flyer"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/service"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/user"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func setupRouter(serviceModule *module.Module) *gin.Engine {
@@ -49,6 +52,8 @@ func setupRouter(serviceModule *module.Module) *gin.Engine {
 			// admin routes
 		}
 	}
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return router
 }
