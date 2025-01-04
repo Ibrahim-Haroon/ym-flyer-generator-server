@@ -82,8 +82,17 @@ func (s *Service) Login(username, password string) (string, error) {
 	return token, nil
 }
 
-func (s *Service) GetUser(userID string) (*model.User, error) {
+func (s *Service) GetUserById(userID string) (*model.User, error) {
 	user, err := s.repo.GetUserById(userID)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving user: %w", err)
+	}
+
+	return user, nil
+}
+
+func (s *Service) GetUserByUsername(username string) (*model.User, error) {
+	user, err := s.repo.GetUserByUsername(username)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving user: %w", err)
 	}
