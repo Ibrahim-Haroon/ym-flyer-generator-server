@@ -8,6 +8,7 @@ import (
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/image/imagegen"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/textgen"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/user/model"
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -39,6 +40,7 @@ func (s *Service) Register(user *model.User) (string, error) {
 		return "", fmt.Errorf("password must be hashed before sending to server")
 	}
 
+	user.ID = uuid.New().String()
 	user.ActiveStatus = true
 	user.IsAdmin = false
 
@@ -155,6 +157,13 @@ func (s *Service) UpdateAPIKeys(userID string, keys *encryption.APIKeys) error {
 	user, err := s.repo.GetUserById(userID)
 	if err != nil {
 		return fmt.Errorf("failed to get user: %w", err)
+	}
+
+	if user.TextModelApiKeys == nil {
+		user.TextModelApiKeys = make(map[textgen.ProviderType]string)
+	}
+	if user.ImageModelApiKeys == nil {
+		user.ImageModelApiKeys = make(map[imagegen.ProviderType]string)
 	}
 
 	encryptedTextKey, err := s.encryption.Encrypt(keys.TextAPIKey)
