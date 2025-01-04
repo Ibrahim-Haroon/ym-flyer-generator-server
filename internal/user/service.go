@@ -128,7 +128,7 @@ func (s *Service) GetDecryptedAPIKeys(
 	userID string,
 	requestedTextProvider textgen.ProviderType,
 	requestedImageProvider imagegen.ProviderType,
-) (*encryption.APIKeys, error) {
+) (*encryption.DecryptAPIKeys, error) {
 	user, err := s.repo.GetUserById(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -154,7 +154,7 @@ func (s *Service) GetDecryptedAPIKeys(
 		return nil, fmt.Errorf("failed to decrypt image API key: %w", err)
 	}
 
-	return &encryption.APIKeys{
+	return &encryption.DecryptAPIKeys{
 		TextProvider:  requestedTextProvider,
 		TextAPIKey:    decryptedTextKey,
 		ImageProvider: requestedImageProvider,
@@ -175,6 +175,16 @@ func (s *Service) UpdateAPIKeys(userID string, keys *encryption.APIKeys) error {
 		user.ImageModelApiKeys = make(map[imagegen.ProviderType]string)
 	}
 
+	textProvider, err := textgen.NewProviderType(keys.TextProvider)
+	if err != nil {
+		return fmt.Errorf(fmt.Sprintf("%v", err.Error()))
+	}
+
+	imageProvider, err := imagegen.NewProviderType(keys.ImageProvider)
+	if err != nil {
+		return fmt.Errorf(fmt.Sprintf("%v", err.Error()))
+	}
+
 	encryptedTextKey, err := s.encryption.Encrypt(keys.TextAPIKey)
 	if err != nil {
 		return fmt.Errorf("failed to encrypt text API key: %w", err)
@@ -185,8 +195,8 @@ func (s *Service) UpdateAPIKeys(userID string, keys *encryption.APIKeys) error {
 		return fmt.Errorf("failed to encrypt image API key: %w", err)
 	}
 
-	user.TextModelApiKeys[keys.TextProvider] = encryptedTextKey
-	user.ImageModelApiKeys[keys.ImageProvider] = encryptedImageKey
+	user.TextModelApiKeys[textProvider] = encryptedTextKey
+	user.ImageModelApiKeys[imageProvider] = encryptedImageKey
 
 	if err := s.repo.UpdateUser(user); err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
