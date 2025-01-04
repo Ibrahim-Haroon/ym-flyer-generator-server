@@ -23,6 +23,13 @@ func NewHandler(service *Service) *Handler {
 
 func (h *Handler) GetBackground(c *gin.Context) {
 	imagePath := c.Param("path")
+
+	_, exists := c.Get("claims")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No authentication claims found"})
+		return
+	}
+
 	fullPath := filepath.Join(".", imagePath)
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
