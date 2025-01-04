@@ -2,12 +2,13 @@ package flyer
 
 import (
 	"fmt"
-	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/auth/jwt"
-	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/flyer/model"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/auth/jwt"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/flyer/model"
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -65,5 +66,5 @@ func (h *Handler) GenerateBackgrounds(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, model.CreateResponse{BackgroundPaths: backgroundPaths})
+	c.JSON(http.StatusAccepted, model.CreateResponse{BackgroundPaths: backgroundPaths})
 }
