@@ -2,6 +2,7 @@ package flyer
 
 import (
 	"fmt"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/auth/jwt"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/flyer/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -9,7 +10,17 @@ import (
 	"path/filepath"
 )
 
-func GetBackground(c *gin.Context) {
+type Handler struct {
+	service *Service
+}
+
+func NewHandler(service *Service) *Handler {
+	return &Handler{
+		service: service,
+	}
+}
+
+func (h *Handler) GetBackground(c *gin.Context) {
 	imagePath := c.Param("path")
 	fullPath := filepath.Join(".", imagePath)
 
@@ -28,21 +39,30 @@ func GetBackground(c *gin.Context) {
 	c.Data(http.StatusOK, "image/png", imageData)
 }
 
-func GenerateBackgrounds(c *gin.Context) {
+func (h *Handler) GenerateBackgrounds(c *gin.Context) {
 	var createRequest model.CreateRequest
 
-	err := c.BindJSON(&createRequest)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, fmt.Errorf("failed to bind json: %v", err))
+	claims, exists := c.Get("claims")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No authentication claims found"})
+		return
+	}
+	userClaims := claims.(*jwt.Claims)
+
+	if err := c.BindJSON(&createRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Failed to bind request: %v", err)})
+		return
 	}
 
-	backgroundPaths, err := CreateBackground(
+	backgroundPaths, err := h.service.CreateBackground(
+		userClaims.UserID,
 		createRequest.ColorPalette,
-		createRequest.TextModelProviderMeta,
-		createRequest.ImageModelProviderMeta,
+		createRequest.TextModelProvider,
+		createRequest.ImageModelProvider,
 	)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, model.CreateResponse{BackgroundPaths: backgroundPaths})

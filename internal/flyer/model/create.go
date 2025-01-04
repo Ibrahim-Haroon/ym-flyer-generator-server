@@ -7,21 +7,11 @@ import (
 
 type CreateRequest struct {
 	// NumberOfFlyers uint `json:"number_of_flyers"`   TBD whether multiple file generations will be added
-	ColorPalette           string                 `json:"color_palette"`
-	TextModelProviderMeta  TextModelProviderMeta  `json:"text_model_provider"`
-	ImageModelProviderMeta ImageModelProviderMeta `json:"image_model_provider"`
-}
-
-type TextModelProviderMeta struct {
-	Name   textgen.ProviderType `json:"name"`
-	ApiKey string               `json:"api_key"`
-}
-
-type ImageModelProviderMeta struct {
-	Name   imagegen.ProviderType `json:"name"`
-	ApiKey string                `json:"api_key"`
+	ColorPalette       string                `json:"color_palette"`
+	TextModelProvider  textgen.ProviderType  `json:"text_model_provider"`
+	ImageModelProvider imagegen.ProviderType `json:"image_model_provider"`
 }
 
 type CreateResponse struct {
-	BackgroundPaths []string `json:"backgroud_paths"`
+	BackgroundPaths []string `json:"background_paths"`
 }
