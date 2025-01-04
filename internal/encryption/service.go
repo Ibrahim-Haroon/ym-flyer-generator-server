@@ -7,6 +7,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/image/imagegen"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llm/text/textgen"
 	"io"
 )
 
@@ -18,9 +20,9 @@ var (
 )
 
 type APIKeys struct {
-	TextProvider  string
+	TextProvider  textgen.ProviderType
 	TextAPIKey    string
-	ImageProvider string
+	ImageProvider imagegen.ProviderType
 	ImageAPIKey   string
 }
 
