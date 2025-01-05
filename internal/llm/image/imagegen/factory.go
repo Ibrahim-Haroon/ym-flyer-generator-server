@@ -15,6 +15,14 @@ var validProviderTypes = map[ProviderType]bool{
 	OpenAI: true,
 }
 
+func GetAllProviders() []string {
+	providers := make([]string, 0, len(validProviderTypes))
+	for provider := range validProviderTypes {
+		providers = append(providers, string(provider))
+	}
+	return providers
+}
+
 func NewProviderType(value string) (ProviderType, error) {
 	pt := ProviderType(value)
 	if !validProviderTypes[pt] {

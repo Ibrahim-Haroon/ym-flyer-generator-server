@@ -9,6 +9,7 @@ import (
 
 	_ "github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/docs/swagger"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/flyer"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llmprovider"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/service"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/user"
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,7 @@ func setupRouter(serviceModule *module.Module) *gin.Engine {
 
 	userHandler := user.NewHandler(serviceModule.UserService)
 	flyerHandler := flyer.NewHandler(serviceModule.FlyerService)
+	llmProviderHandler := llmprovider.NewHandler(serviceModule.LlmProviderService)
 
 	api := router.Group("/api/v1")
 	{
@@ -44,6 +46,12 @@ func setupRouter(serviceModule *module.Module) *gin.Engine {
 		{
 			flyers.POST("/:id", flyerHandler.GenerateBackgrounds)
 			flyers.GET("/:id/*path", flyerHandler.GetBackground)
+		}
+
+		llmproviders := api.Group("/llm_provider")
+		llmproviders.Use(serviceModule.Middleware.AuthUser)
+		{
+			llmproviders.GET("/:id/:llm_type", llmProviderHandler.ListLLMProviders)
 		}
 
 		admin := api.Group("/admin")
