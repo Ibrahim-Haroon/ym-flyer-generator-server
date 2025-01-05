@@ -141,6 +141,68 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/provider/{id}/{model_type}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves all supported LLM providers for either image or text generation models",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "provider"
+                ],
+                "summary": "Get all the available providers for a LLM type (text/image)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Type of LLM provider (either 'text' or 'image')",
+                        "name": "model_type",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of available providers",
+                        "schema": {
+                            "$ref": "#/definitions/model.LLMProviders"
+                        }
+                    },
+                    "400": {
+                        "description": "If the model type is not image or text",
+                        "schema": {
+                            "$ref": "#/definitions/model.LLMProviderErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/model.LLMProviderErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/model.LLMProviderErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users/login": {
             "post": {
                 "description": "Authenticate user and return JWT token",
@@ -453,6 +515,27 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "model.LLMProviderErrorResponse": {
+            "description": "Error response from the API",
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LLMProviders": {
+            "description": "List of all providers for a LLM type (text/image)",
+            "type": "object",
+            "properties": {
+                "providers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
