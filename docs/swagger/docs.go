@@ -296,7 +296,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get detailed information about a user",
+                "description": "Get detailed information about a user by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -306,7 +306,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Get user details",
+                "summary": "Get user details by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -398,6 +398,53 @@ const docTemplate = `{
             }
         },
         "/api/v1/users/{id}/api-keys": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of available text and image llm providers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get the available LLM Providers for the user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieved list of available LLM models",
+                        "schema": {
+                            "$ref": "#/definitions/model.AvailableLLMProvidersResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserErrorResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -414,7 +461,7 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Add/update API keys (idempotent)",
+                "summary": "Add/update LLM Providers API keys (idempotent)",
                 "parameters": [
                     {
                         "type": "string",
@@ -429,7 +476,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.UpdateAPIKeysRequest"
+                            "$ref": "#/definitions/model.UpdateLLMProviderAPIKeysRequest"
                         }
                     }
                 ],
@@ -465,6 +512,21 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "OpenAI"
             ]
+        },
+        "model.AvailableLLMProvidersResponse": {
+            "description": "Response to getting availible LLM Providers",
+            "type": "object",
+            "properties": {
+                "providers": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         },
         "model.CreateRequest": {
             "description": "Parameters for flyer background generation",
@@ -609,37 +671,33 @@ const docTemplate = `{
                     "description": "Basic Info regarding User",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/model.UserRegisterationInfo"
+                            "$ref": "#/definitions/model.UserRegistrationInfo"
                         }
                     ]
                 }
             }
         },
-        "model.UpdateAPIKeysRequest": {
+        "model.UpdateLLMProviderAPIKeysRequest": {
             "description": "Request to add/update API keys",
             "type": "object",
             "required": [
-                "image_api_key",
-                "image_provider",
-                "text_api_key",
-                "text_provider"
+                "image_providers",
+                "text_providers"
             ],
             "properties": {
-                "image_api_key": {
-                    "description": "API key for image generation service\nExample: \"sk-...\"",
-                    "type": "string"
+                "image_providers": {
+                    "description": "Image generation service provider\nExample: {\"openai\": \"sk-493...\"}",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
-                "image_provider": {
-                    "description": "Image generation service provider\nExample: \"openai\"",
-                    "type": "string"
-                },
-                "text_api_key": {
-                    "description": "API key for text generation service\nExample: \"sk-...\"",
-                    "type": "string"
-                },
-                "text_provider": {
-                    "description": "Text generation service provider\nExample: \"anthropic\"",
-                    "type": "string"
+                "text_providers": {
+                    "description": "Text generation service provider\nExample: {\"anthropic\": \"sk-493...\"}",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -662,7 +720,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.UserRegisterationInfo": {
+        "model.UserRegistrationInfo": {
             "description": "Basic Info regarding User",
             "type": "object",
             "properties": {
