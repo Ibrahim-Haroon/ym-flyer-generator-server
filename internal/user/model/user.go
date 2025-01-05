@@ -57,20 +57,12 @@ type AvailableLLMProvidersResponse struct {
 // @Description Request to add/update API keys
 type UpdateLLMProviderAPIKeysRequest struct {
 	// Text generation service provider
-	// Example: "anthropic"
-	TextProvider string `json:"text_provider" binding:"required"`
-
-	// API key for text generation service
-	// Example: "sk-..."
-	TextAPIKey string `json:"text_api_key" binding:"required"`
+	// Example: {"anthropic": "sk-493..."}
+	TextProviders map[string]string `json:"text_providers" binding:"required"`
 
 	// Image generation service provider
-	// Example: "openai"
-	ImageProvider string `json:"image_provider" binding:"required"`
-
-	// API key for image generation service
-	// Example: "sk-..."
-	ImageAPIKey string `json:"image_api_key" binding:"required"`
+	// Example: {"openai": "sk-493..."}
+	ImageProviders map[string]string `json:"image_providers" binding:"required"`
 }
 
 // @Description Response for updating user, such as deleting a user
