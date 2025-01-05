@@ -73,7 +73,7 @@ func (h *Handler) GetBackground(c *gin.Context) {
 // @Failure 401 {object} model.GenerationErrorResponse "Unauthorized access"
 // @Failure 500 {object} model.GenerationErrorResponse "Server error"
 // @Router /api/v1/flyer/{id} [post]
-func (h *Handler) GenerateBackgrounds(c *gin.Context) {
+func (h *Handler) CreateBackground(c *gin.Context) {
 	userID := c.Param("id")
 	var createRequest model.CreateRequest
 

@@ -36,22 +36,23 @@ func setupRouter(serviceModule *module.Module) *gin.Engine {
 		users := api.Group("/users")
 		users.Use(serviceModule.Middleware.AuthUser)
 		{
-			users.GET("/:id", userHandler.GetUser)
-			users.PUT("/:id/api-keys", userHandler.UpdateAPIKeys)
+			users.GET("/:id", userHandler.GetUserById)
+			users.GET("/:id/api-keys", userHandler.GetAvailibleLLMProviders)
+			users.PUT("/:id/api-keys", userHandler.UpdateLLMProviderAPIKeys)
 			users.DELETE("/:id", userHandler.DeleteUser)
 		}
 
 		flyers := api.Group("/flyer")
 		flyers.Use(serviceModule.Middleware.AuthUser)
 		{
-			flyers.POST("/:id", flyerHandler.GenerateBackgrounds)
+			flyers.POST("/:id", flyerHandler.CreateBackground)
 			flyers.GET("/:id/*path", flyerHandler.GetBackground)
 		}
 
 		llmproviders := api.Group("/llm_provider")
 		llmproviders.Use(serviceModule.Middleware.AuthUser)
 		{
-			llmproviders.GET("/:id/:llm_type", llmProviderHandler.ListLLMProviders)
+			llmproviders.GET("/:id/:llm_type", llmProviderHandler.GetLLMProviders)
 		}
 
 		admin := api.Group("/admin")

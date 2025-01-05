@@ -28,7 +28,7 @@ func NewHandler(service *Service) *Handler {
 // @Failure 400 {object} model.LLMProviderErrorResponse "If the model type is not image or text"
 // @Failure 500 {object} model.LLMProviderErrorResponse "Server error"
 // @Router /api/v1/provider/{id}/{model_type} [get]
-func (h *Handler) ListLLMProviders(c *gin.Context) {
+func (h *Handler) GetLLMProviders(c *gin.Context) {
 	userID := c.Param("id")
 	llmType := c.Param("llm_type")
 
