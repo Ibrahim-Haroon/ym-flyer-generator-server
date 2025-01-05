@@ -136,7 +136,38 @@ func (h *Handler) GetUser(c *gin.Context) {
 	})
 }
 
-// @Summary Add/update API keys (idempotent)
+// @Summary Get the availible LLM Providers for the user
+// @Description Retrive a list of availible text and image llm providers
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Security BearerAuth
+// @Success 200 {object} model.AvailibleLLMProvidersResponse "Retrived list of availible LLM models"
+// @Failure 400 {object} model.UserErrorResponse "Invalid request body"
+// @Failure 401 {object} model.UserErrorResponse "Unauthorized access"
+// @Router /api/v1/users/{id}/api-keys [get]
+func (h *Handler) GetAvailibleLLMProviders(c *gin.Context) {
+	userID := c.Param("id")
+
+	userIDFromClaim, exists := c.Get("userID")
+	if !exists || userIDFromClaim.(string) != userID {
+		c.JSON(http.StatusUnauthorized, model.UserErrorResponse{Error: "Unauthorized access"})
+		return
+	}
+
+	availibleLLMProviders, err := h.service.GetAvailibleLLMProviders(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.UserErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.AvailibleLLMProvidersResponse{
+		Providers: availibleLLMProviders,
+	})
+}
+
+// @Summary Add/update LLM Providers API keys (idempotent)
 // @Description Update user's API keys for text and image generation services
 // @Tags users
 // @Accept json
@@ -148,7 +179,7 @@ func (h *Handler) GetUser(c *gin.Context) {
 // @Failure 400 {object} model.UserErrorResponse "Invalid request body"
 // @Failure 401 {object} model.UserErrorResponse "Unauthorized access"
 // @Router /api/v1/users/{id}/api-keys [put]
-func (h *Handler) UpdateAPIKeys(c *gin.Context) {
+func (h *Handler) UpdateLLMProviderAPIKeys(c *gin.Context) {
 	userID := c.Param("id")
 
 	userIDFromClaim, exists := c.Get("userID")
@@ -157,7 +188,7 @@ func (h *Handler) UpdateAPIKeys(c *gin.Context) {
 		return
 	}
 
-	var req model.UpdateAPIKeysRequest
+	var req model.UpdateLLMAPIKeysRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.UserErrorResponse{Error: "Invalid request body"})
 		return
@@ -170,7 +201,7 @@ func (h *Handler) UpdateAPIKeys(c *gin.Context) {
 		ImageAPIKey:   req.ImageAPIKey,
 	}
 
-	if err := h.service.UpdateAPIKeys(userID, keys); err != nil {
+	if err := h.service.UpdateLLMProviderAPIKeys(userID, keys); err != nil {
 		c.JSON(http.StatusBadRequest, model.UserErrorResponse{Error: err.Error()})
 		return
 	}
