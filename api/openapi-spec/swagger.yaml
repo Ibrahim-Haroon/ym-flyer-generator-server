@@ -48,6 +48,20 @@ definitions:
       error:
         type: string
     type: object
+  model.LLMProviderErrorResponse:
+    description: Error response from the API
+    properties:
+      error:
+        type: string
+    type: object
+  model.LLMProviders:
+    description: List of all providers for a LLM type (text/image)
+    properties:
+      providers:
+        items:
+          type: string
+        type: array
+    type: object
   model.LoginRequest:
     description: Login request payload
     properties:
@@ -317,6 +331,47 @@ paths:
       summary: Get a generated flyer background
       tags:
       - flyer
+  /api/v1/provider/{id}/{model_type}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all supported LLM providers for either image or text
+        generation models
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Type of LLM provider (either 'text' or 'image')
+        in: path
+        name: model_type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of available providers
+          schema:
+            $ref: '#/definitions/model.LLMProviders'
+        "400":
+          description: If the model type is not image or text
+          schema:
+            $ref: '#/definitions/model.LLMProviderErrorResponse'
+        "401":
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/model.LLMProviderErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/model.LLMProviderErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all the available providers for a LLM type (text/image)
+      tags:
+      - provider
   /api/v1/users/{id}:
     delete:
       consumes:
