@@ -91,8 +91,8 @@ func (h *Handler) Login(c *gin.Context) {
 	})
 }
 
-// @Summary Get user details
-// @Description Get detailed information about a user
+// @Summary Get user details by ID
+// @Description Get detailed information about a user by ID
 // @Tags users
 // @Accept json
 // @Produce json
@@ -103,7 +103,7 @@ func (h *Handler) Login(c *gin.Context) {
 // @Failure 403 {object} model.UserErrorResponse "Forbidden"
 // @Failure 404 {object} model.UserErrorResponse "User not found"
 // @Router /api/v1/users/{id} [get]
-func (h *Handler) GetUser(c *gin.Context) {
+func (h *Handler) GetUserById(c *gin.Context) {
 	userID := c.Param("id")
 
 	userIDFromClaim, exists := c.Get("userID")
