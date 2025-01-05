@@ -48,7 +48,7 @@ func (h *Handler) Register(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, model.RegisterResponse{
 		Token: token,
-		User: model.UserRegisterationInfo{
+		User: model.UserRegistrationInfo{
 			UserID:   user.ID,
 			Username: user.Username,
 			Email:    user.Email,
@@ -136,18 +136,18 @@ func (h *Handler) GetUserById(c *gin.Context) {
 	})
 }
 
-// @Summary Get the availible LLM Providers for the user
-// @Description Retrive a list of availible text and image llm providers
+// @Summary Get the available LLM Providers for the user
+// @Description Retrieve a list of available text and image llm providers
 // @Tags users
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
 // @Security BearerAuth
-// @Success 200 {object} model.AvailibleLLMProvidersResponse "Retrived list of availible LLM models"
+// @Success 200 {object} model.AvailableLLMProvidersResponse "Retrieved list of available LLM models"
 // @Failure 400 {object} model.UserErrorResponse "Invalid request body"
 // @Failure 401 {object} model.UserErrorResponse "Unauthorized access"
 // @Router /api/v1/users/{id}/api-keys [get]
-func (h *Handler) GetAvailibleLLMProviders(c *gin.Context) {
+func (h *Handler) GetAvailableLLMProviders(c *gin.Context) {
 	userID := c.Param("id")
 
 	userIDFromClaim, exists := c.Get("userID")
@@ -156,14 +156,14 @@ func (h *Handler) GetAvailibleLLMProviders(c *gin.Context) {
 		return
 	}
 
-	availibleLLMProviders, err := h.service.GetAvailibleLLMProviders(userID)
+	availableLLMProviders, err := h.service.GetAvailableLLMProviders(userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.UserErrorResponse{Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, model.AvailibleLLMProvidersResponse{
-		Providers: availibleLLMProviders,
+	c.JSON(http.StatusOK, model.AvailableLLMProvidersResponse{
+		Providers: availableLLMProviders,
 	})
 }
 
@@ -188,7 +188,7 @@ func (h *Handler) UpdateLLMProviderAPIKeys(c *gin.Context) {
 		return
 	}
 
-	var req model.UpdateLLMAPIKeysRequest
+	var req model.UpdateLLMProviderAPIKeysRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.UserErrorResponse{Error: "Invalid request body"})
 		return

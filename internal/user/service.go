@@ -162,29 +162,29 @@ func (s *Service) GetDecryptedAPIKeys(
 	}, nil
 }
 
-func (s *Service) GetAvailibleLLMProviders(userID string) (map[string][]string, error) {
+func (s *Service) GetAvailableLLMProviders(userID string) (map[string][]string, error) {
 	user, err := s.repo.GetUserById(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	availibleProvders := map[string][]string{
+	availableProviders := map[string][]string{
 		"text":  {},
 		"image": {},
 	}
 
 	if user.TextModelApiKeys != nil {
 		for provider := range user.TextModelApiKeys {
-			availibleProvders["text"] = append(availibleProvders["text"], string(provider))
+			availableProviders["text"] = append(availableProviders["text"], string(provider))
 		}
 	}
 	if user.ImageModelApiKeys != nil {
 		for provider := range user.ImageModelApiKeys {
-			availibleProvders["text"] = append(availibleProvders["image"], string(provider))
+			availableProviders["text"] = append(availableProviders["image"], string(provider))
 		}
 	}
 
-	return availibleProvders, nil
+	return availableProviders, nil
 }
 
 func (s *Service) UpdateLLMProviderAPIKeys(userID string, keys *encryption.APIKeys) error {
