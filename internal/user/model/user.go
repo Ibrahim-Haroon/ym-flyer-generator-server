@@ -50,12 +50,12 @@ type User struct {
 }
 
 // @Description Response to getting availible LLM Providers
-type AvailibleLLMProvidersResponse struct {
+type AvailableLLMProvidersResponse struct {
 	Providers map[string][]string `json:"providers"`
 }
 
 // @Description Request to add/update API keys
-type UpdateLLMAPIKeysRequest struct {
+type UpdateLLMProviderAPIKeysRequest struct {
 	// Text generation service provider
 	// Example: "anthropic"
 	TextProvider string `json:"text_provider" binding:"required"`

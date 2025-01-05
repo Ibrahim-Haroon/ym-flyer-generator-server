@@ -20,11 +20,11 @@ type RegisterResponse struct {
 	// Token for all endpoints required auth
 	Token string `json:"token"`
 	// Basic Info regarding User
-	User UserRegisterationInfo `json:"user"`
+	User UserRegistrationInfo `json:"user"`
 }
 
 // @Description Basic Info regarding User
-type UserRegisterationInfo struct {
+type UserRegistrationInfo struct {
 	// user's UUID
 	// Example: "john_doe"
 	UserID string `json:"id"`

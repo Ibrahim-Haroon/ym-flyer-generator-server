@@ -37,7 +37,7 @@ func setupRouter(serviceModule *module.Module) *gin.Engine {
 		users.Use(serviceModule.Middleware.AuthUser)
 		{
 			users.GET("/:id", userHandler.GetUserById)
-			users.GET("/:id/api-keys", userHandler.GetAvailibleLLMProviders)
+			users.GET("/:id/api-keys", userHandler.GetAvailableLLMProviders)
 			users.PUT("/:id/api-keys", userHandler.UpdateLLMProviderAPIKeys)
 			users.DELETE("/:id", userHandler.DeleteUser)
 		}
