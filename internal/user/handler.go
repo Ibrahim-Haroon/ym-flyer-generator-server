@@ -173,7 +173,7 @@ func (h *Handler) GetAvailableLLMProviders(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Param request body model.UpdateAPIKeysRequest true "API keys"
+// @Param request body model.UpdateLLMProviderAPIKeysRequest true "API keys"
 // @Security BearerAuth
 // @Success 200 {object} model.UpdateUserResponse "API keys updated"
 // @Failure 400 {object} model.UserErrorResponse "Invalid request body"
