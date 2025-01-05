@@ -49,8 +49,13 @@ type User struct {
 	ImageModelApiKeys map[imagegen.ProviderType]string `json:"-"`
 }
 
+// @Description Response to getting availible LLM Providers
+type AvailibleLLMProvidersResponse struct {
+	Providers map[string][]string `json:"providers"`
+}
+
 // @Description Request to add/update API keys
-type UpdateAPIKeysRequest struct {
+type UpdateLLMAPIKeysRequest struct {
 	// Text generation service provider
 	// Example: "anthropic"
 	TextProvider string `json:"text_provider" binding:"required"`
