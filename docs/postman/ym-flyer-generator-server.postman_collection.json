@@ -110,7 +110,7 @@
 					"response": []
 				},
 				{
-					"name": "Add/Update API keys",
+					"name": "Add/Update LLM API Keys",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -156,6 +156,45 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get List of Available LLM API Keys",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "YOUR-TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/:id/api-keys",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								":id",
+								"api-keys"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "YOUR-ID"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -163,7 +202,7 @@
 			"name": "Flyer",
 			"item": [
 				{
-					"name": "Generate Flyer(s)",
+					"name": "Generate Flyer",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -258,7 +297,7 @@
 			"name": "LLM Providers",
 			"item": [
 				{
-					"name": "Get All Possible LLM Provders",
+					"name": "Get All Possible LLM Providers",
 					"request": {
 						"auth": {
 							"type": "bearer",
