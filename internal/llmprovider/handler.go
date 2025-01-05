@@ -15,18 +15,18 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-// @Summary Get all the availible providers for a LLM type (text/image)
+// @Summary Get all the available providers for a LLM type (text/image)
 // @Description Retrieves all supported LLM providers for either image or text generation models
 // @Tags provider
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Param model_type either text or image
+// @Param model_type path string true "Type of LLM provider (either 'text' or 'image')"
 // @Security BearerAuth
-// @Success 200 {file} binary "Image data"
-// @Failure 401 {object} model.LlmProviderErrorResponse "Unauthorized access"
-// @Failure 400 {object} model.LlmProviderErrorResponse "If the model type is not image or text"
-// @Failure 500 {object} model.LlmProviderErrorResponse "Server error"
+// @Success 200 {object} model.LLMProviders "List of available providers"
+// @Failure 401 {object} model.LLMProviderErrorResponse "Unauthorized access"
+// @Failure 400 {object} model.LLMProviderErrorResponse "If the model type is not image or text"
+// @Failure 500 {object} model.LLMProviderErrorResponse "Server error"
 // @Router /api/v1/provider/{id}/{model_type} [get]
 func (h *Handler) ListLLMProviders(c *gin.Context) {
 	userID := c.Param("id")
