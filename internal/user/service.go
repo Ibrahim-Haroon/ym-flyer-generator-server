@@ -180,7 +180,7 @@ func (s *Service) GetAvailableLLMProviders(userID string) (map[string][]string, 
 	}
 	if user.ImageModelApiKeys != nil {
 		for provider := range user.ImageModelApiKeys {
-			availableProviders["text"] = append(availableProviders["image"], string(provider))
+			availableProviders["image"] = append(availableProviders["image"], string(provider))
 		}
 	}
 
@@ -200,28 +200,33 @@ func (s *Service) UpdateLLMProviderAPIKeys(userID string, keys *encryption.APIKe
 		user.ImageModelApiKeys = make(map[imagegen.ProviderType]string)
 	}
 
-	textProvider, err := textgen.NewProviderType(keys.TextProvider)
-	if err != nil {
-		return fmt.Errorf(fmt.Sprintf("%v", err.Error()))
+	for provider := range keys.TextProviders {
+		textProvider, err := textgen.NewProviderType(provider)
+		if err != nil {
+			return fmt.Errorf(fmt.Sprintf("%v", err.Error()))
+		}
+
+		encryptedTextKey, err := s.encryption.Encrypt(keys.TextProviders[string(textProvider)])
+		if err != nil {
+			return fmt.Errorf("failed to encrypt text API key: %w", err)
+		}
+
+		user.TextModelApiKeys[textProvider] = encryptedTextKey
 	}
 
-	imageProvider, err := imagegen.NewProviderType(keys.ImageProvider)
-	if err != nil {
-		return fmt.Errorf(fmt.Sprintf("%v", err.Error()))
-	}
+	for provider := range keys.ImageProviders {
+		imageProvider, err := imagegen.NewProviderType(provider)
+		if err != nil {
+			return fmt.Errorf(fmt.Sprintf("%v", err.Error()))
+		}
 
-	encryptedTextKey, err := s.encryption.Encrypt(keys.TextAPIKey)
-	if err != nil {
-		return fmt.Errorf("failed to encrypt text API key: %w", err)
-	}
+		encryptedImageKey, err := s.encryption.Encrypt(keys.ImageProviders[string(imageProvider)])
+		if err != nil {
+			return fmt.Errorf("failed to encrypt image API key: %w", err)
+		}
 
-	encryptedImageKey, err := s.encryption.Encrypt(keys.ImageAPIKey)
-	if err != nil {
-		return fmt.Errorf("failed to encrypt image API key: %w", err)
+		user.ImageModelApiKeys[imageProvider] = encryptedImageKey
 	}
-
-	user.TextModelApiKeys[textProvider] = encryptedTextKey
-	user.ImageModelApiKeys[imageProvider] = encryptedImageKey
 
 	if err := s.repo.UpdateUser(user); err != nil {
 		return fmt.Errorf("failed to update user: %w", err)

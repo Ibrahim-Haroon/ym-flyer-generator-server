@@ -195,10 +195,8 @@ func (h *Handler) UpdateLLMProviderAPIKeys(c *gin.Context) {
 	}
 
 	keys := &encryption.APIKeys{
-		TextProvider:  req.TextProvider,
-		TextAPIKey:    req.TextAPIKey,
-		ImageProvider: req.ImageProvider,
-		ImageAPIKey:   req.ImageAPIKey,
+		TextProviders:  req.TextProviders,
+		ImageProviders: req.ImageProviders,
 	}
 
 	if err := h.service.UpdateLLMProviderAPIKeys(userID, keys); err != nil {
