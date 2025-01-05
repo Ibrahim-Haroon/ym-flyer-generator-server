@@ -5,6 +5,16 @@ definitions:
     type: string
     x-enum-varnames:
     - OpenAI
+  model.AvailableLLMProvidersResponse:
+    description: Response to getting availible LLM Providers
+    properties:
+      providers:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+    type: object
   model.CreateRequest:
     description: Parameters for flyer background generation
     properties:
@@ -127,37 +137,29 @@ definitions:
         type: string
       user:
         allOf:
-        - $ref: '#/definitions/model.UserRegisterationInfo'
+        - $ref: '#/definitions/model.UserRegistrationInfo'
         description: Basic Info regarding User
     type: object
-  model.UpdateAPIKeysRequest:
+  model.UpdateLLMProviderAPIKeysRequest:
     description: Request to add/update API keys
     properties:
-      image_api_key:
-        description: |-
-          API key for image generation service
-          Example: "sk-..."
-        type: string
-      image_provider:
+      image_providers:
+        additionalProperties:
+          type: string
         description: |-
           Image generation service provider
-          Example: "openai"
-        type: string
-      text_api_key:
-        description: |-
-          API key for text generation service
-          Example: "sk-..."
-        type: string
-      text_provider:
+          Example: {"openai": "sk-493..."}
+        type: object
+      text_providers:
+        additionalProperties:
+          type: string
         description: |-
           Text generation service provider
-          Example: "anthropic"
-        type: string
+          Example: {"anthropic": "sk-493..."}
+        type: object
     required:
-    - image_api_key
-    - image_provider
-    - text_api_key
-    - text_provider
+    - image_providers
+    - text_providers
     type: object
   model.UpdateUserResponse:
     description: Response for updating user, such as deleting a user
@@ -172,7 +174,7 @@ definitions:
       error:
         type: string
     type: object
-  model.UserRegisterationInfo:
+  model.UserRegistrationInfo:
     description: Basic Info regarding User
     properties:
       email:
@@ -410,7 +412,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get detailed information about a user
+      description: Get detailed information about a user by ID
       parameters:
       - description: User ID
         in: path
@@ -438,10 +440,40 @@ paths:
             $ref: '#/definitions/model.UserErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get user details
+      summary: Get user details by ID
       tags:
       - users
   /api/v1/users/{id}/api-keys:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of available text and image llm providers
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved list of available LLM models
+          schema:
+            $ref: '#/definitions/model.AvailableLLMProvidersResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/model.UserErrorResponse'
+        "401":
+          description: Unauthorized access
+          schema:
+            $ref: '#/definitions/model.UserErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get the available LLM Providers for the user
+      tags:
+      - users
     put:
       consumes:
       - application/json
@@ -457,7 +489,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/model.UpdateAPIKeysRequest'
+          $ref: '#/definitions/model.UpdateLLMProviderAPIKeysRequest'
       produces:
       - application/json
       responses:
@@ -475,7 +507,7 @@ paths:
             $ref: '#/definitions/model.UserErrorResponse'
       security:
       - BearerAuth: []
-      summary: Add/update API keys (idempotent)
+      summary: Add/update LLM Providers API keys (idempotent)
       tags:
       - users
   /api/v1/users/login:
