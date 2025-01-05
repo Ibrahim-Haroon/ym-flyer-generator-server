@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "22222222-2222-2222-2222-222222222222",
-		"name": "YM_Flyer_Generator_Server",
+		"name": "ym-flyer-generator-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "22222222"
 	},
@@ -246,6 +246,54 @@
 								{
 									"key": "path",
 									"value": "/path/to/image.png"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "LLM Providers",
+			"item": [
+				{
+					"name": "Get All Possible LLM Provders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "YOUR-TOKEN",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/llm_provider/:id/:llm_type",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"llm_provider",
+								":id",
+								":llm_type"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "YOUR-ID"
+								},
+								{
+									"key": "llm_type",
+									"value": "text\\image"
 								}
 							]
 						}
