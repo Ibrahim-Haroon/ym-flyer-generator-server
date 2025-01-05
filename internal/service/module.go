@@ -9,17 +9,19 @@ import (
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/auth"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/encryption"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/flyer"
+	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/llmprovider"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/middleware"
 	"github.com/Ibrahim-Haroon/ym-flyer-generator-server.git/internal/user"
 	"github.com/gin-gonic/gin"
 )
 
 type Module struct {
-	db           *sql.DB
-	UserService  *user.Service
-	FlyerService *flyer.Service
-	AuthService  *auth.Service
-	Middleware   *MiddlewareModule
+	db                 *sql.DB
+	UserService        *user.Service
+	FlyerService       *flyer.Service
+	AuthService        *auth.Service
+	LlmProviderService *llmprovider.Service
+	Middleware         *MiddlewareModule
 }
 
 type MiddlewareModule struct {
@@ -48,6 +50,7 @@ func NewModule(ctx context.Context, db *sql.DB) (*Module, error) {
 	authService := auth.NewService(signingKey)
 	userService := user.NewService(userRepo, authService, encryptionService)
 	flyerService := flyer.NewService(userService)
+	llmProviderService := llmprovider.NewService()
 
 	middlewareModule := &MiddlewareModule{
 		AuthUser:  middleware.AuthUserMiddleware(authService),
@@ -55,11 +58,12 @@ func NewModule(ctx context.Context, db *sql.DB) (*Module, error) {
 	}
 
 	return &Module{
-		db:           db,
-		UserService:  userService,
-		FlyerService: flyerService,
-		AuthService:  authService,
-		Middleware:   middlewareModule,
+		db:                 db,
+		UserService:        userService,
+		FlyerService:       flyerService,
+		AuthService:        authService,
+		LlmProviderService: llmProviderService,
+		Middleware:         middlewareModule,
 	}, nil
 }
 
