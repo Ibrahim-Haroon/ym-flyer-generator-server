@@ -6,7 +6,7 @@ on:
       - main
   workflow_dispatch: {}
 concurrency:
-  group: 'shoaib-pipe-store-inventory-${{ github.ref }}'
+  group: 'ym-flyer-generator-server-${{ github.ref }}'
   cancel-in-progress: true
 
 jobs:
